@@ -1,19 +1,17 @@
-package Btree;
-
-import java.util.ArrayList;
+package BTree;
 
 public class BTreeNode {
 	
-	public long key;
-	public ArrayList<BTreeNode> children;
+	public long[] keys;
+	public BTreeNode[] children;
+	public boolean isLeaf;
+	public int n; //current number of keys
 	
-	public BTreeNode(long key) {
-		this.key = key;
-	}
-	
-	public BTreeNode(long key, ArrayList<BTreeNode> children) {
-		this.key = key;
-		this.children = children;
+	public BTreeNode(int t) {
+		keys = new long[(2*t-1)];
+		children = new BTreeNode[(2*t)];
+		isLeaf = true;
+		n = 0;
 	}
 
 }

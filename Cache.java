@@ -1,4 +1,4 @@
-package Btree;
+package BTree;
 
 import java.util.LinkedList;
 

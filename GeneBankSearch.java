@@ -1,4 +1,4 @@
-package Btree;
+package BTree;
 
 public class GeneBankSearch {
 
