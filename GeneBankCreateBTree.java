@@ -1,5 +1,6 @@
 package BTree;
 
+import java.io.IOException;
 import java.util.Random;
 
 //GeneBankCreateBTree <degree> <gbk file> <sequence length> [<debug level>]
@@ -8,14 +9,21 @@ import java.util.Random;
 public class GeneBankCreateBTree {
 
 	public static void main(String args[]) {
-		BTree bt = new BTree(4);		
+		BTree bt;
+		try {
+			bt = new BTree(4, 4, "test-tree");
+			Random r = new Random();
+			
+			for(int i = 0; i<100; i++) {
+				long sequence = (long)r.nextLong();
+				bt.insert(sequence);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 		
-		Random r = new Random();
 		
-		for(int i = 0; i<100; i++) {
-			long sequence = (long)r.nextLong();
-			bt.insert(sequence);
-		}
 		
 		
 		
