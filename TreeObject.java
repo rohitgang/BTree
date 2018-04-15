@@ -1,8 +1,8 @@
 package BTree;
 
 public class TreeObject {
-	long key;
-	int freq;
+	public long key;
+	public int freq;
 	
 	public TreeObject(long key, int freq) {
 		this.key = key;

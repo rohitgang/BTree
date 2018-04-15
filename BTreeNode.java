@@ -6,7 +6,7 @@ public class BTreeNode {
 	public long[] children;
 	public boolean isLeaf;
 	public int n; //current number of keys
-	long filePos; //position of node in file
+	public long filePos; //position of node in file
 	
 	public BTreeNode(int t, long filePos) {
 		keys = new TreeObject[(2*t-1)];

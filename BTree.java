@@ -164,11 +164,35 @@ public class BTree extends InvalidParameterException{
 	}
 	
 	public void diskWrite(BTreeNode node) {
+		btreeRAF.seek(node.filePos);
+		
+		for (int i = 0; i < node.keys.length; i++) {
+			btreeRAF.writeLong(node.keys[i].key);
+			btreeRAF.writeInt(node.keys[i].freq);
+		}
+		for (int i = 0; i < node.children.length; i++) {
+			btreeRAF.writeLong(node.children[i]);
+		}
+		btreeRAF.writeInt(node.n);
+		btreeRAF.writeBoolean(node.isLeaf);
 		
 	}
 	
 	public BTreeNode diskRead(long offset) {
-		return new BTreeNode(0,0);
+		btreeRAF.seek(offset);
+		BTreeNode node = new BTreeNode(t, offset);
+		
+		for (int i = 0; i < node.keys.length; i++) {
+			node.keys[i].key = btreeRAF.readLong();
+			node.keys[i].freq = btreeRAF.readInt();
+		}
+		for (int i = 0; i < node.children.length; i++) {
+			node.children[i] = btreeRAF.readLong();
+		}
+		node.n = btreeRAF.readInt();
+		node.isLeaf = btreeRAF.readBoolean();
+		
+		return node;
 	}
 	
 }
