@@ -92,7 +92,7 @@ public class GeneBankCreateBTree {
 					linePosition = 0;
 				}else{
 					while(linePosition < dnaSequence.length()){
-						char token = dnaSequence.charAt(linePosition);
+						char token = dnaSequence.charAt(linePosition++);
 						
 						switch(token){
 						case 'A':
