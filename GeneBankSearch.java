@@ -9,15 +9,12 @@ public class GeneBankSearch {
 	//GeneBankSearch<0/1(no/with Cache> <btree file> <query file> <Cache Size> [<debug level>]
 	public static void main(String args[]) {
 		
+		//a possible solution for getting the degree and sequence could be parsing it from the .gbk filename
 		//Checks arguments to make there is the proper amount 
 		if(args.length > 5 || args.length < 3)
 		{
 			printUsage();
 		}
-		
-		
-		
-
 		
 	}
 	

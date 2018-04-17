@@ -21,7 +21,6 @@ public class GeneBankCreateBTree {
 
 
 	public static void main(String args[]) {
-
 		//Checks to see if the proper amount of arguments has been entered.
 		if(args.length < 4 || args.length > 6){
 			printUsage();
@@ -37,29 +36,19 @@ public class GeneBankCreateBTree {
 			}else{
 				printUsage();
 			}
-		}catch(NumberFormatException e){
-			printUsage();
-		}
-
-		//Check degree argument
-		try{
+			
+			//Check degree argument
 			degreeArg = Integer.parseInt(args[1]);
 			if(degreeArg < 0){
 				printUsage();
 			}else if(degreeArg == 0){
 				//Find/Use Optimal based on block size of 4096
 			}
-		}catch(NumberFormatException e){
-			printUsage();
-		}
-
-		//Check sequence argument to make sure it is correct
-		try{
+			
 			sequenceSize = Integer.parseInt(args[3]);
 			if(sequenceSize < 1 || sequenceSize > MAX_SEQUENCE_LENGTH){
 				printUsage();
 			}
-
 		}catch(NumberFormatException e){
 			printUsage();
 		}
@@ -119,27 +108,24 @@ public class GeneBankCreateBTree {
 				}
 			}
 		}
-
-
-
-		//		BTree bt;
-		//		try {
-		//			bt = new BTree(4, 4, "test-tree");
-		//			Random r = new Random();
-		//
-		//			for(int i = 0; i<100; i++) {
-		//				long sequence = (long)r.nextLong();
-		//				bt.insert(sequence);
-		//			}
-		//		} catch (IOException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-
-
-
-
-
+		
+		//Test the BTree!
+//		try {
+//			BTree bt = new BTree(2, 3, "test-tree");
+//			System.out.println(bt.sequenceToLong("ACCTT"));
+//			System.out.println(bt.longToSequence(980, 5));
+//			
+//			long[] longs = {1,2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+//			for(int i = 0; i<longs.length; i++) {
+//				bt.insert(longs[i]);
+//			}
+//			System.out.println("ROOT!");
+//			bt.root.printNode();
+//			System.out.println("ROOT!");
+//			bt.print(bt.root);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}		
 
 
 	}
