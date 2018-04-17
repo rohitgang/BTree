@@ -48,6 +48,8 @@ public class GeneBankCreateBTree{
 				printUsage();
 			}else if(degreeArg == 0){
 				treeDegree = 102;
+			}else {
+				treeDegree = degreeArg;
 			}
 		}catch(NumberFormatException e){
 			printUsage();
@@ -76,7 +78,8 @@ public class GeneBankCreateBTree{
 		}
 
 		String dnaSequence = null;
-
+		StringBuilder fullSequence = null;
+		
 		try {
 			dnaSequence = gbkInput.readLine().toUpperCase().trim();
 
@@ -86,8 +89,7 @@ public class GeneBankCreateBTree{
 			}
 			
 			char token = 0;
-//			String fullSequence = null;
-			StringBuilder fullSequence = new StringBuilder();
+			fullSequence = new StringBuilder();
 			int index = 0;
 
 			while(token != '/'){
@@ -122,6 +124,30 @@ public class GeneBankCreateBTree{
 			System.err.print("Invalid File");
 			e.printStackTrace();
 		}
+		
+		BTree bt;
+		try {
+			String  filename = args[1];
+			System.out.println(treeDegree + " " + sequenceSize + " " + filename);
+			bt = new BTree(treeDegree, sequenceSize, filename);
+
+			//add subsequences to the tree
+			
+			int seqLength = sequenceSize - 1;
+			int endOfSubseq = fullSequence.length() - seqLength;
+			String subSequence;
+			long convertedSequence;
+			for (int i = 0; i < endOfSubseq; i++) {	
+				subSequence = fullSequence.substring(i, i + seqLength);
+				convertedSequence = bt.sequenceToLong(subSequence);
+				bt.insert(convertedSequence);
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 //		//Test the BTree!
 //		try {
