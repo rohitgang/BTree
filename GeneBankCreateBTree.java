@@ -1,4 +1,4 @@
-package BTree;
+//package BTree;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -88,22 +88,27 @@ public class GeneBankCreateBTree{
 			}
 			
 			char token = 0;
+//			String fullSequence = null;
+			StringBuilder fullSequence = new StringBuilder();
+			int index = 0;
 
 			while(token != '/'){
 				token = (char) gbkInput.read();
 				token = Character.toUpperCase(token);
 
-				System.out.println(token);
-
 				switch(token){
 				case 'A':
-					//Add in += to string for each of the following. 
+					//Add in += to string for each of the following.
+					fullSequence.append(Character.toString(token));
 					break;
 				case 'T':
+					fullSequence.append(Character.toString(token));
 					break;
 				case 'C':
+					fullSequence.append(Character.toString(token));;
 					break;
 				case 'G':
+					fullSequence.append(Character.toString(token));
 					break;
 				case 'N':
 					continue;
@@ -111,17 +116,16 @@ public class GeneBankCreateBTree{
 					continue;
 				}
 
-				//						if(linePosition == dnaSequence.length() - 1){
-				//							sequences.add(dnaSequence);	
-				//
-				//						}
-
-
 			}
+			//I cannot get the sequence to print to the console. however if you go into debug you can see that the whole sequence is there.
+			System.out.println(fullSequence);
+			
 		} catch (IOException e) {
 			System.err.print("Invalid File");
 			e.printStackTrace();
 		}
+		
+		
 	}
 
 
