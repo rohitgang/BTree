@@ -9,15 +9,17 @@ public class BTreeNode {
 	public long filePos; //position of node in file
 	
 	public BTreeNode(int t, long filePos) {
-		keys = new TreeObject[(2*t-1)];		
+		this.keys = new TreeObject[(2*t-1)];		
 		for(int i=0; i<keys.length; i++) {
-			keys[i] = new TreeObject(-1L, 1);
-		}		
-		children = new long[(2*t)];
+			keys[i] = new TreeObject(-1L, 0);
+		}	
+		
+		this.children = new long[(2*t)];
 		for(int i=0; i<children.length; i++) {
 			children[i] = -1L;
 		}
-		isLeaf = true;
+		
+		this.isLeaf = true;
 		n = 0;
 		this.filePos = filePos;
 	}
