@@ -222,19 +222,29 @@ public class BTree{
 		return node;
 	}
 	
-	public void print(BTreeNode root_node) {		
+	public void print(BTreeNode root_node, boolean debug) {		
 		for(int i=0; i<t; i++) {
 			if(root_node.children[i] != -1L) {
 				BTreeNode n = diskRead(root_node.children[i]);
-				print(n);
+				print(n, debug);
 			}
 		}
-		root_node.printNode();
+		
+		if (debug) { //print for debug file
+			for (int i = 0; i < root_node.keys.length; i++) {
+				System.out.print(root_node.keys[i].freq + " ");
+				System.out.print(longToSequence(root_node.keys[i].key, seqLength) + " ");
+			}
+		}
+		else { //print to check tree node status
+			root_node.printNode();	
+		}
+		
 		System.out.println();
-		for(int i=t; i<root_node.children.length; i++) {
+		for(int i=t; i< root_node.children.length; i++) {
 			if(root_node.children[i] != -1L) {
 				BTreeNode n = diskRead(root_node.children[i]);
-				print(n);
+				print(n, debug);
 			}
 		}		
 	}

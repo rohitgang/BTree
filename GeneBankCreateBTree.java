@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -17,7 +18,6 @@ public class GeneBankCreateBTree{
 	private static int treeDegree, degreeArg, sequenceSize;
 	private final static int MAX_SEQUENCE_LENGTH = 31;
 	private static String formattedFileName;
-	static ArrayList<String> sequences = new ArrayList();
 
 
 	public static void main(String args[]){
@@ -90,7 +90,6 @@ public class GeneBankCreateBTree{
 			
 			char token = 0;
 			fullSequence = new StringBuilder();
-			int index = 0;
 
 			while(token != '/'){
 				token = (char) gbkInput.read();
@@ -117,22 +116,19 @@ public class GeneBankCreateBTree{
 				}
 
 			}
-			//I cannot get the sequence to print to the console. however if you go into debug you can see that the whole sequence is there.
-			System.out.println(fullSequence);
 			
 		} catch (IOException e) {
 			System.err.print("Invalid File");
 			e.printStackTrace();
 		}
 		
+		//create tree
 		BTree bt;
 		try {
 			String  filename = args[1];
-			System.out.println(treeDegree + " " + sequenceSize + " " + filename);
 			bt = new BTree(treeDegree, sequenceSize, filename);
 
 			//add subsequences to the tree
-			
 			int seqLength = sequenceSize - 1;
 			int endOfSubseq = fullSequence.length() - seqLength;
 			String subSequence;
@@ -142,13 +138,33 @@ public class GeneBankCreateBTree{
 				convertedSequence = bt.sequenceToLong(subSequence);
 				bt.insert(convertedSequence);
 			}
-
+			System.out.println("The B-Tree was created succefully!");
+			System.out.println("The following files were created.");
+			System.out.println("Metadata file: " + filename + ".btree.metadata." + sequenceSize  + "." + treeDegree);
+			System.out.println("B-Tree binary file: "  + filename + ".btree.data." + sequenceSize  + "." + treeDegree );
+			//check debug
+			int debugArg = 0;
+			if (args.length > 3) {
+				debugArg = Integer.parseInt(args[3]);
+			}
+			if (debugArg == 1) {
+				//use stream to capture system output from btree node
+				PrintStream fileOutput = new PrintStream(new File("debug"));
+				//save current output so it can be restored
+				PrintStream console = System.out;
+				//change output to file
+				System.setOut(fileOutput);
+				bt.print(bt.root, true);
+				//restore output
+				System.setOut(console);
+				System.out.println("B-Tree key file: debug");
+			}	
+			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Error in Btree creation and output");
 			e.printStackTrace();
 		}
-		
-		
+
 //		//Test the BTree!
 //		try {
 //			BTree bt = new BTree(2, 3, "test-tree");

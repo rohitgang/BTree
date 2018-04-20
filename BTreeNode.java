@@ -22,8 +22,8 @@ public class BTreeNode {
 		this.filePos = filePos;
 	}
 	
-	//TODO remove children and other outputs for proper cli debug functionality 
 	public void printNode() {
+		
 		System.out.println("filePos: " + filePos);
 		System.out.println("isLeaf: " + false);
 		System.out.println("n: " + n);
@@ -38,5 +38,7 @@ public class BTreeNode {
 		}
 		System.out.println();
 	}
+	
+
 
 }
