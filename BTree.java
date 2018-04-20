@@ -47,14 +47,14 @@ public class BTree{
 	}
 	
 	public void insert(long key)  {
-		if(root.n == 2*t-1) {
-			BTreeNode r = this.root;
-			BTreeNode newNode = new BTreeNode(t, getFileLength());			
+		BTreeNode r = this.root;
+		if(r.n == 2*t-1) {
+			BTreeNode newNode = new BTreeNode(t, getFileLength());	
+			diskWrite(newNode);	
+			this.root = newNode;
 			newNode.isLeaf = false;
 			newNode.n = 0;
-			newNode.children[0] = r.filePos;
-			this.root = newNode;
-			diskWrite(newNode);			
+			newNode.children[0] = r.filePos;					
 			splitChild(newNode,0,r);
 			insertNonFull(newNode,key);
 		}else {
@@ -77,6 +77,7 @@ public class BTree{
 		if(x.isLeaf) {
 			while( i >= 0 && key < x.keys[i].key ) {
 				x.keys[i+1] = x.keys[i];
+				x.keys[i] = new TreeObject(-1L,0);
 				i--;			
 			}
 			x.keys[i+1].key = key;
@@ -124,11 +125,12 @@ public class BTree{
 	public void splitChild(BTreeNode x, int i, BTreeNode y) {
 		//x is the parent to y
 		//y is the node being split 
-		//z is the new node which ~half of ys keys/children will go to
+		//z is the new node which ~half of y's keys/children will go to
 		BTreeNode z = new BTreeNode(t, getFileLength());
 		z.isLeaf = y.isLeaf;
 		z.n = t-1;
 		diskWrite(z);
+		
 		for(int j=0; j<t-1; j++) {
 			z.keys[j] = y.keys[j+t];
 			y.keys[j+t] = new TreeObject(-1L, 0);
@@ -139,12 +141,13 @@ public class BTree{
 				y.children[j+t] = -1;
 			}
 		}
+		
 		y.n = t-1;
-		for(int j=x.n; j>=i+1; j--) {
+		for(int j=x.n; j>i+1; j--) {
 			x.children[j+1] = x.children[j];
 		}
 		x.children[i+1] = z.filePos;
-		for(int j=x.n-1; j>=i; j--) {
+		for(int j=x.n-1; j>i; j--) {
 			x.keys[j+1] = x.keys[j];
 		}
 		x.keys[i] = y.keys[t-1];
@@ -212,7 +215,7 @@ public class BTree{
 	public BTreeNode diskRead(long offset) {
 		BTreeNode node = new BTreeNode(t,offset);
 		try {
-			btreeRAF = new RandomAccessFile(BtreeFile, "rw");
+			btreeRAF = new RandomAccessFile(BtreeFile, "r");
 			btreeRAF.seek(offset);
 			for (int i = 0; i < node.keys.length; i++) {
 				node.keys[i].key = btreeRAF.readLong();
@@ -243,6 +246,7 @@ public class BTree{
 			for (int i = 0; i < root_node.keys.length; i++) {
 				TreeObject cur = root_node.keys[i];
 				if(cur.key != -1) {
+					System.out.print(cur.key + " ");
 					System.out.print(longToSequence(cur.key, seqLength) + " ");
 					System.out.print(cur.freq + " ");
 					System.out.println();

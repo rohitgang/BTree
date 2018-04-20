@@ -27,7 +27,7 @@ public class BTreeNode {
 	public void printNode() {
 		
 		System.out.println("filePos: " + filePos);
-		System.out.println("isLeaf: " + false);
+		System.out.println("isLeaf: " + isLeaf);
 		System.out.println("n: " + n);
 		System.out.println("keys: ");
 		for(int i = 0; i < keys.length; i++) {
