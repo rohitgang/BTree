@@ -73,6 +73,7 @@ public class BTree{
 				}
 			}
 		}
+
 		int i = x.n - 1;
 		if(x.isLeaf) {
 			while( i >= 0 && key < x.keys[i].key ) {
@@ -234,36 +235,34 @@ public class BTree{
 		return node;
 	}
 	
-	public void print(BTreeNode root_node, boolean debug) {		
-		for(int i=0; i<t; i++) {
-			if(root_node.children[i] != -1L) {
-				BTreeNode n = diskRead(root_node.children[i]);
-				print(n, debug);
+	public void print(BTreeNode root_node, boolean debug) {	
+		if (root_node.isLeaf) {
+			if (debug) { //print for debug file
+				for (int i = 0; i < root_node.keys.length; i++) {
+					TreeObject cur = root_node.keys[i];
+					if(cur.key != -1) {
+						System.out.print(cur.key + " ");
+						System.out.print(longToSequence(cur.key, seqLength) + " ");
+						System.out.print(cur.freq + " ");
+						System.out.println();
+					}
+
+				}
+			}
+			else { //print to check tree node status
+				root_node.printNode();	
+			}
+			System.out.println();
+		}
+		else {
+			for(int i=0; i<t; i++) {
+				if(root_node.children[i] != -1L) {
+					BTreeNode n = diskRead(root_node.children[i]);
+					print(n, debug);
+				}
 			}
 		}
 		
-		if (debug) { //print for debug file
-			for (int i = 0; i < root_node.keys.length; i++) {
-				TreeObject cur = root_node.keys[i];
-				if(cur.key != -1) {
-					System.out.print(cur.key + " ");
-					System.out.print(longToSequence(cur.key, seqLength) + " ");
-					System.out.print(cur.freq + " ");
-					System.out.println();
-				}
-				
-			}
-		}
-		else { //print to check tree node status
-			root_node.printNode();	
-		}
-		System.out.println();
-		for(int i=t; i< root_node.children.length; i++) {
-			if(root_node.children[i] != -1L) {
-				BTreeNode n = diskRead(root_node.children[i]);
-				print(n, debug);
-			}
-		}		
 	}
 	
 	long getFileLength() {
