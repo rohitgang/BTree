@@ -36,24 +36,26 @@ public class Cache <E> {
 	}
 
 	public E getObject(E object) {
-		removeObject(object);
-		addObject(object);
-		return (E)l1.get(0);
+		E r = removeObject(object);
+		if(r != null)addObject(object);
+		return r;
 	}
 
-	public void removeObject(E object) {
+	public E removeObject(E object) {
+		E r = null;
 		l1RefCount++;
 		if(l1.indexOf(object) != -1) {
 			l1HitCount++;
-			l1.remove(l1.indexOf(object));
+			r = l1.remove(l1.indexOf(object));
 			if(l2enabled) l2.remove(l2.indexOf(object));
 		}else if(l2enabled) {
 			l2RefCount++;
 			if(l2.indexOf(object) != -1) {
 				l2HitCount++;
-				l2.remove(l2.indexOf(object));
+				r = l2.remove(l2.indexOf(object));
 			}
 		}
+		return r;
 	}
 	
 	public void clearCache(E object){

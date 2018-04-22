@@ -142,12 +142,12 @@ public class BTree{
 		}
 		
 		y.n = t-1;
-		for(int j=x.n; j>i+1; j--) {
+		for(int j=x.n; j>i; j--) {
 			x.children[j+1] = x.children[j];
 			x.children[j] = -1L;
 		}
 		x.children[i+1] = z.filePos;
-		for(int j=x.n-1; j>i; j--) {
+		for(int j=x.n-1; j>i-1; j--) {
 			x.keys[j+1] = new TreeObject(x.keys[j].key, x.keys[j].freq);
 		}
 		x.keys[i] = new TreeObject(y.keys[t-1].key, y.keys[t-1].freq);

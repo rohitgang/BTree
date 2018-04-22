@@ -11,7 +11,7 @@ public class TreeObject {
 	
 	public TreeObject(long key) {
 		this.key = key;
-		freq = 0;
+		freq = 1;
 	}
 	
 	public TreeObject() {
