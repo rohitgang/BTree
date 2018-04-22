@@ -13,4 +13,9 @@ public class TreeObject {
 		this.key = key;
 		freq = 0;
 	}
+	
+	public TreeObject() {
+		this.key = -1L;
+		freq = 0;
+	}
 }

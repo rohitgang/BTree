@@ -77,12 +77,10 @@ public class BTree{
 		int i = x.n - 1;
 		if(x.isLeaf) {
 			while( i >= 0 && key < x.keys[i].key ) {
-				x.keys[i+1] = x.keys[i];
-				x.keys[i] = new TreeObject(-1L,0);
+				x.keys[i+1] = new TreeObject(x.keys[i].key, x.keys[i].freq);
 				i--;			
 			}
-			x.keys[i+1].key = key;
-			x.keys[i+1].freq = 1;
+			x.keys[i+1] = new TreeObject(key, 1);
 			x.n++;
 			diskWrite(x);	
 		}else {
@@ -133,26 +131,27 @@ public class BTree{
 		diskWrite(z);
 		
 		for(int j=0; j<t-1; j++) {
-			z.keys[j] = y.keys[j+t];
-			y.keys[j+t] = new TreeObject(-1L, 0);
+			z.keys[j] = new TreeObject(y.keys[j+t].key, y.keys[j+t].freq);
+			y.keys[j+t] = new TreeObject();
 		}
 		if(!y.isLeaf) {
 			for(int j=0; j<t; j++) {
 				z.children[j] = y.children[j+t];
-				y.children[j+t] = -1;
+				y.children[j+t] = -1L;
 			}
 		}
 		
 		y.n = t-1;
 		for(int j=x.n; j>i+1; j--) {
 			x.children[j+1] = x.children[j];
+			x.children[j] = -1L;
 		}
 		x.children[i+1] = z.filePos;
 		for(int j=x.n-1; j>i; j--) {
-			x.keys[j+1] = x.keys[j];
+			x.keys[j+1] = new TreeObject(x.keys[j].key, x.keys[j].freq);
 		}
-		x.keys[i] = y.keys[t-1];
-		y.keys[t-1] = new TreeObject(-1L, 0);
+		x.keys[i] = new TreeObject(y.keys[t-1].key, y.keys[t-1].freq);
+		y.keys[t-1] = new TreeObject();
 		x.n = x.n + 1;
 		diskWrite(z);		
 		diskWrite(y);		
@@ -237,7 +236,7 @@ public class BTree{
 	
 	public void print(BTreeNode root_node, boolean debug) {	
 		int i;
-		for(i=0; i < t; i++) {
+		for(i=0; i < 2*t-1; i++) {
 			if (!root_node.isLeaf) {
 				if(root_node.children[i] != -1L) {
 					BTreeNode n = diskRead(root_node.children[i]);

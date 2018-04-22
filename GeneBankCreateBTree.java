@@ -16,6 +16,23 @@ public class GeneBankCreateBTree{
 
 	public static void main(String args[]){
 		
+//Uncomment to Test the tree with a small set of key values 
+//				try {
+//					BTree bt = new BTree(2, 3, "test-tree");
+//					long[] longs = {1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 
+//							2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4,
+//							5, 5, 1, 1, 1, 1, 1, 54, 54, 54, 54, 54, 54, 54, 54, 
+//							54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 15};
+//					long cur = -1L;
+//					for(int i = 0; i<longs.length; i++) {
+//						cur = longs[i];
+//						bt.insert(longs[i]);
+//					}
+//					bt.print(bt.root, true);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}	
+		
 		parseArgs(args);
 		StringBuilder fullSequence = parseGbkFile(args[1]);
 		
