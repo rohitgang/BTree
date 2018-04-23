@@ -25,30 +25,30 @@ public class GeneBankCreateBTree{
 			File gbkFile = new File(gbkFilename);
 			BufferedReader gbkInput = new BufferedReader(new FileReader(gbkFile));
 			BTree bt = new BTree(degreeArg, sequenceSize, gbkFilename);
+			StringBuilder fullSequence = new StringBuilder("Start");
 			
-			while (gbkInput.)
-				StringBuilder fullSequence = parseGbkFile(gbkInput);
-
-
 			
+			while (fullSequence != null) {
+				fullSequence = parseGbkFile(gbkInput);
+				if (fullSequence != null) {
 
-			//add subsequences to the tree
-			int seqLength = sequenceSize;
-			int endOfSubseq = fullSequence.length() - seqLength;
-			String subSequence;
-			long convertedSequence;
-			for (int i = 0; i < endOfSubseq; i++) {	
-				subSequence = fullSequence.substring(i, i + seqLength);
-				if (subSequence.contains("N")) {
-					subSequence = null;
-				}
-				else {
-					convertedSequence = bt.sequenceToLong(subSequence);
-					bt.insert(convertedSequence);
+					//add subsequences to the tree
+					int seqLength = sequenceSize;
+					int endOfSubseq = fullSequence.length() - seqLength;
+					String subSequence;
+					long convertedSequence;
+					for (int i = 0; i < endOfSubseq; i++) {	
+						subSequence = fullSequence.substring(i, i + seqLength);
+						if (subSequence.contains("N")) {
+							subSequence = null;
+						}
+						else {
+							convertedSequence = bt.sequenceToLong(subSequence);
+							bt.insert(convertedSequence);
+						}
+					}
 				}
 			}
-			
-			
 			
 			System.out.println("The B-Tree was created successfully!");
 			System.out.println("The following files were created.");
@@ -109,7 +109,12 @@ public class GeneBankCreateBTree{
 			
 			do{
 				dnaSequence = gbkInput.readLine();
-			}while(!dnaSequence.startsWith("ORIGIN"));
+			}while(dnaSequence != null && !dnaSequence.startsWith("ORIGIN"));
+			
+			if (dnaSequence == null)
+			{
+				return fullSequence;
+			}
 			
 			char token = 0;
 			fullSequence = new StringBuilder();
