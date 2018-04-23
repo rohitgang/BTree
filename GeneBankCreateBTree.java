@@ -20,33 +20,41 @@ public class GeneBankCreateBTree{
 	public static void main(String args[]){
 		
 		parseArgs(args);
-		StringBuilder fullSequence = parseGbkFile(gbkFilename);
 		
 		try {
-			String  filename = args[1];
-			BTree bt;
-			if(cacheFlag == 1) { 
-				Cache<TreeObject> cache = new Cache<TreeObject>(cacheSize, cacheSize*2, true);
-				bt = new BTree(degreeArg/2, sequenceSize, filename, cache);
-			}
-			else bt = new BTree(degreeArg/2, sequenceSize, filename);
+
+			File gbkFile = new File(gbkFilename);
+			BufferedReader gbkInput = new BufferedReader(new FileReader(gbkFile));
+			BTree bt = new BTree(degreeArg/2, sequenceSize, gbkFilename);
+			StringBuilder fullSequence = new StringBuilder("Start");
 			
-			
-			//add subsequences to the tree
-			int seqLength = sequenceSize;
-			int endOfSubseq = fullSequence.length() - seqLength;
-			String subSequence;
-			long convertedSequence;
-			for (int i = 0; i < endOfSubseq; i++) {	
-				subSequence = fullSequence.substring(i, i + seqLength);
-				convertedSequence = bt.sequenceToLong(subSequence);
-				bt.insert(convertedSequence);
+			while (fullSequence != null) {
+				fullSequence = parseGbkFile(gbkInput);
+				if (fullSequence != null) {
+
+					//add subsequences to the tree
+					int seqLength = sequenceSize;
+					int endOfSubseq = fullSequence.length() - seqLength;
+					String subSequence;
+					long convertedSequence;
+					for (int i = 0; i < endOfSubseq; i++) {	
+						subSequence = fullSequence.substring(i, i + seqLength);
+						if (subSequence.contains("N")) {
+							subSequence = null;
+						}
+						else {
+							convertedSequence = bt.sequenceToLong(subSequence);
+							bt.insert(convertedSequence);
+						}
+					}
+				}
 			}
+			
 			System.out.println("The B-Tree was created successfully!");
 			System.out.println("The following files were created.");
-			System.out.println("Metadata file: " + filename + ".btree.metadata." + sequenceSize  + "." + degreeArg);
-			System.out.println("B-Tree binary file: "  + filename + ".btree.data." + sequenceSize  + "." + degreeArg);
-						
+			System.out.println("Metadata file: " + gbkFilename + ".btree.metadata." + sequenceSize  + "." + degreeArg);
+			System.out.println("B-Tree binary file: "  + gbkFilename + ".btree.data." + sequenceSize  + "." + degreeArg);
+
 			if (debugArg == 1) {
 				//use stream to capture system output from btree node
 				PrintStream fileOutput = new PrintStream(new File("debug"));
@@ -96,17 +104,21 @@ public class GeneBankCreateBTree{
 
 	}
 	
-	private static StringBuilder parseGbkFile(String filename) {
-		StringBuilder fullSequence = null;		
-		
+
+	private static StringBuilder parseGbkFile(BufferedReader gbkInput) {		
+		String dnaSequence = null;
+		StringBuilder fullSequence = null;
+				
 		try {
-			File gbkFile = new File(filename);
-			BufferedReader gbkInput = new BufferedReader(new FileReader(gbkFile));
-			String dnaSequence = null;
 			
 			do{
 				dnaSequence = gbkInput.readLine();
-			}while(!dnaSequence.startsWith("ORIGIN"));
+			}while(dnaSequence != null && !dnaSequence.startsWith("ORIGIN"));
+			
+			if (dnaSequence == null)
+			{
+				return fullSequence;
+			}
 			
 			char token = 0;
 			fullSequence = new StringBuilder();
@@ -125,6 +137,9 @@ public class GeneBankCreateBTree{
 					fullSequence.append(Character.toString(token));;
 					break;
 				case 'G':
+					fullSequence.append(Character.toString(token));
+					break;
+				case 'N':
 					fullSequence.append(Character.toString(token));
 					break;
 				}
