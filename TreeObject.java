@@ -18,4 +18,8 @@ public class TreeObject {
 		this.key = -1L;
 		freq = 0;
 	}
+	
+	public boolean equals(TreeObject t) {
+		return this.key == t.key;
+	}
 }

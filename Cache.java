@@ -11,8 +11,8 @@ public class Cache <E> {
 	public int l2HitCount;
 	public int l1RefCount;
 	public int l2RefCount;	
-	private LinkedList<E> l1;
-	private LinkedList<E> l2;
+	public LinkedList<E> l1;
+	public LinkedList<E> l2;
 	
 	public Cache(int l1size, int l2size, boolean l2enable) {
 		l1maxSize = l1size;

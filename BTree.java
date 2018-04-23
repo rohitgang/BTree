@@ -19,11 +19,13 @@ public class BTree{
 	BTreeNode root;
 	File BtreeFile;
 	RandomAccessFile btreeRAF;
+	Cache<TreeObject> cache;
 	
 	public BTree(int t, int k, String gbk) throws IOException{
 		this.t = t;
 		this.seqLength = k;
-		File metadata = new File(gbk + ".btree.metadata." + k + "." + t);
+		File metadata = new File(gbk + ".btree.metadata." + k + "." + t*2);
+		this.cache = null;
 		
 		btreeRAF = new RandomAccessFile(metadata, "rw");
 		btreeRAF.write(t); //tree degree in terms of t
@@ -31,7 +33,23 @@ public class BTree{
 		btreeRAF.close();
 
 		root = new BTreeNode(t,0);
-		BtreeFile = new File(gbk + ".btree.data." + k + "." + t);			
+		BtreeFile = new File(gbk + ".btree.data." + k + "." + t*2);			
+		diskWrite(root);
+	}
+	
+	public BTree(int t, int k, String gbk, Cache<TreeObject> cache) throws IOException{
+		this.t = t;
+		this.seqLength = k;
+		File metadata = new File(gbk + ".btree.metadata." + k + "." + t*2);
+		this.cache = cache;
+		
+		btreeRAF = new RandomAccessFile(metadata, "rw");
+		btreeRAF.write(t); //tree degree in terms of t
+		btreeRAF.write(k); //length of sequences stored in the tree
+		btreeRAF.close();
+
+		root = new BTreeNode(t,0);
+		BtreeFile = new File(gbk + ".btree.data." + k + "." + t*2);			
 		diskWrite(root);
 	}
 	
@@ -48,6 +66,11 @@ public class BTree{
 	
 	public void insert(long key)  {
 		BTreeNode r = this.root;
+		TreeObject duplicate = search(root, key);
+		if(duplicate != null) {
+			duplicate.freq++;
+			return;
+		}
 		if(r.n == 2*t-1) {
 			BTreeNode newNode = new BTreeNode(t, getFileLength());	
 			diskWrite(newNode);	
@@ -63,17 +86,6 @@ public class BTree{
 	}
 	
 	public void insertNonFull(BTreeNode x, long key) {
-		BTreeNode duplicate = search(root, key);
-		if(duplicate != null) {
-			for(int i=0; i<duplicate.keys.length; i++) {
-				if(duplicate.keys[i].key == key) {
-					duplicate.keys[i].freq++;
-					diskWrite(duplicate);
-					return;
-				}
-			}
-		}
-
 		int i = x.n - 1;
 		if(x.isLeaf) {
 			while( i >= 0 && key < x.keys[i].key ) {
@@ -102,14 +114,23 @@ public class BTree{
 		}
 	}
 	
-	public BTreeNode search(BTreeNode x, long key) {
+	public TreeObject search(BTreeNode x, long key) {
+		if(cache != null) {
+			for(int i=0; i<cache.l1.size(); i++) {
+				if(cache.l1.get(i).key == key) return cache.l1.get(i);				
+			}
+			for(int j=0; j<cache.l2.size(); j++) {
+				if(cache.l2.get(j).key == key) return cache.l2.get(j);
+			}
+		}
 		int i = 0;
 		BTreeNode retNode = null;
 		while(i < x.n && key > x.keys[i].key) {
 			i++;
 		}
 		if(i < x.n && key == x.keys[i].key) {
-			return x;
+			cache.addObject(x.keys[i]);
+			return x.keys[i];
 		}
 		if(x.isLeaf) {
 			return null;

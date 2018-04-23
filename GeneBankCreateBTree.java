@@ -24,8 +24,14 @@ public class GeneBankCreateBTree{
 		
 		try {
 			String  filename = args[1];
-			BTree bt = new BTree(degreeArg, sequenceSize, filename);
-
+			BTree bt;
+			if(cacheFlag == 1) { 
+				Cache<TreeObject> cache = new Cache<TreeObject>(cacheSize, cacheSize*2, true);
+				bt = new BTree(degreeArg/2, sequenceSize, filename, cache);
+			}
+			else bt = new BTree(degreeArg/2, sequenceSize, filename);
+			
+			
 			//add subsequences to the tree
 			int seqLength = sequenceSize;
 			int endOfSubseq = fullSequence.length() - seqLength;
@@ -63,23 +69,26 @@ public class GeneBankCreateBTree{
 	//GeneBankCreateBTree <degree> <gbk file> <sequence length> [<debug level>]
 	//TODO GeneBankCreateBTree <cache 0/1> <degree> <gbk file> <sequence length> <cache size> [<debug level>]
 	private static void parseArgs(String args[]) {
-		if(args.length < 3 || args.length > 6) printUsage();
+		if(args.length < 5 || args.length > 6) printUsage();
 
 		try{			
-//			cacheFlag = Integer.parseInt(args[0]);
-//			cacheSize = Integer.parseInt(args[4]);
-//			if(cacheFlag != 0 && cacheFlag != 1) printUsage();
+			cacheFlag = Integer.parseInt(args[0]);
+			cacheSize = Integer.parseInt(args[4]);
+			if(cacheFlag != 0 && cacheFlag != 1) printUsage();
 			
-			degreeArg = Integer.parseInt(args[0]);
-			if(degreeArg < 0) printUsage();
-			if(degreeArg == 0) degreeArg = 102;
+			degreeArg = Integer.parseInt(args[1]);
+			if(degreeArg < 0 || degreeArg % 2 != 0) printUsage();
+			//if the degree arg is 0 configure degree so that each node fits within a memory block of size 4096
+			//each node has (2*t-1)*(8+4) + (2*t)*8 + 4 + 4 + 8 bytes
+			//(2*t-t)*(8+4) + (2*t)*8 + 4 + 4 + 8 = 4096 => t = 145 => degree = 2*145
+			if(degreeArg == 0) degreeArg = 145*2;
 			
-			gbkFilename = args[1];
+			gbkFilename = args[2];
 			
-			sequenceSize = Integer.parseInt(args[2]);
+			sequenceSize = Integer.parseInt(args[3]);
 			if(sequenceSize < 1 || sequenceSize > 31) printUsage();
 			
-			if (args.length > 3) debugArg = Integer.parseInt(args[3]);
+			if (args.length > 3) debugArg = Integer.parseInt(args[5]);
 			
 		}catch(NumberFormatException e){
 			printUsage();
@@ -88,13 +97,12 @@ public class GeneBankCreateBTree{
 	}
 	
 	private static StringBuilder parseGbkFile(String filename) {
-		File gbkFile = new File(filename);
-		BufferedReader gbkInput = null;		
-		String dnaSequence = null;
-		StringBuilder fullSequence = null;
-				
+		StringBuilder fullSequence = null;		
+		
 		try {
-			gbkInput = new BufferedReader(new FileReader(gbkFile));
+			File gbkFile = new File(filename);
+			BufferedReader gbkInput = new BufferedReader(new FileReader(gbkFile));
+			String dnaSequence = null;
 			
 			do{
 				dnaSequence = gbkInput.readLine();
@@ -102,7 +110,6 @@ public class GeneBankCreateBTree{
 			
 			char token = 0;
 			fullSequence = new StringBuilder();
-
 			while(token != '/'){
 				token = (char) gbkInput.read();
 				token = Character.toUpperCase(token);
@@ -121,8 +128,8 @@ public class GeneBankCreateBTree{
 					fullSequence.append(Character.toString(token));
 					break;
 				}
-			}
-			
+			}	
+			gbkInput.close();
 		} catch (IOException e) {
 			System.err.print("Invalid File");
 			e.printStackTrace();
