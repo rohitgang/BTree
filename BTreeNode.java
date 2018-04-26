@@ -41,6 +41,10 @@ public class BTreeNode {
 		System.out.println();
 	}
 	
+	public boolean equals(BTreeNode t) {
+		return this.filePos == t.filePos;
+	}
+	
 
 
 }

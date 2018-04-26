@@ -19,10 +19,12 @@ public class BTree{
 	BTreeNode root;
 	File BtreeFile;
 	RandomAccessFile btreeRAF;
+	Cache cache;
 	
-	public BTree(int t, int k, String gbk) throws IOException{
+	public BTree(int t, int k, String gbk, Cache cache) throws IOException{
 		this.t = t;
 		this.seqLength = k;
+		this.cache = cache;
 		File metadata = new File(gbk + ".btree.metadata." + k + "." + t);
 		
 		btreeRAF = new RandomAccessFile(metadata, "rw");
@@ -35,7 +37,7 @@ public class BTree{
 		diskWrite(root);
 	}
 	
-	public BTree(File BtreeFile, File metadata) throws IOException {
+	public BTree(File BtreeFile, File metadata, Cache cache) throws IOException {
 		btreeRAF = new RandomAccessFile(metadata, "r");
 		this.t = btreeRAF.readInt(); //read in degree in terms of t
 		this.seqLength = btreeRAF.readInt(); //sequence length (k) 
@@ -44,9 +46,32 @@ public class BTree{
 		btreeRAF = new RandomAccessFile(BtreeFile, "r");
 		root = diskRead(0);		
 		btreeRAF.close();
+		
+		this.cache = cache;
 	}
 	
 	public void insert(long key)  {
+		//check if key is already inserted
+		BTreeNode duplicate = search(root, key);
+		if(duplicate != null) {
+			for(int i=0; i<duplicate.keys.length; i++) {
+				if(duplicate.keys[i].key == key) {
+					duplicate.keys[i].freq++;
+					if (cache != null) {
+						if (cache.isFull()) {
+							BTreeNode writeToDisk = cache.getLast();
+							diskWrite(writeToDisk);
+						}
+						cache.addObject(duplicate);
+					}
+					else {
+						diskWrite(duplicate);
+					}
+					return;
+				}
+			}
+		}
+		
 		BTreeNode r = this.root;
 		if(r.n == 2*t-1) {
 			BTreeNode newNode = new BTreeNode(t, getFileLength());	
@@ -63,16 +88,6 @@ public class BTree{
 	}
 	
 	public void insertNonFull(BTreeNode x, long key) {
-		BTreeNode duplicate = search(root, key);
-		if(duplicate != null) {
-			for(int i=0; i<duplicate.keys.length; i++) {
-				if(duplicate.keys[i].key == key) {
-					duplicate.keys[i].freq++;
-					diskWrite(duplicate);
-					return;
-				}
-			}
-		}
 
 		int i = x.n - 1;
 		if(x.isLeaf) {
@@ -115,7 +130,19 @@ public class BTree{
 			return null;
 		}else {
 			if(x.children[i]!=-1) {
-				retNode = diskRead(x.children[i]);
+				if (cache != null) {
+					BTreeNode find = cache.getObject(x.children[i]);
+					if (find != null) {
+						retNode = find;
+					}
+					else {
+						retNode = diskRead(x.children[i]);
+					}
+				}
+				else {
+					retNode = diskRead(x.children[i]);
+				}
+		
 			}
 		}
 		return search(retNode,key);
@@ -142,12 +169,12 @@ public class BTree{
 		}
 		
 		y.n = t-1;
-		for(int j=x.n; j>i+1; j--) {
+		for(int j=x.n; j>i; j--) {
 			x.children[j+1] = x.children[j];
 			x.children[j] = -1L;
 		}
 		x.children[i+1] = z.filePos;
-		for(int j=x.n-1; j>i; j--) {
+		for(int j=x.n-1; j>i-1; j--) {
 			x.keys[j+1] = new TreeObject(x.keys[j].key, x.keys[j].freq);
 		}
 		x.keys[i] = new TreeObject(y.keys[t-1].key, y.keys[t-1].freq);
@@ -275,4 +302,9 @@ public class BTree{
 		return fileLength;
 	}
 	
+	public void writeCache() {
+		for (int i = cache.cacheSize(); i > 0; i--) {
+			diskWrite(cache.getLast());
+		}
+	}
 }

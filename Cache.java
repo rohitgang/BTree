@@ -2,63 +2,114 @@ package BTree;
 
 import java.util.LinkedList;
 
-public class Cache <E> {
+/**
+ * Implements a 1 or 2 level cache based on parameters passed into constructor. 
+ * The cache stores generic objects in a linked list. Each node represents one
+ * open space in the cache. 
+ *  
+ * @author Ben Peterson
+ */
+public class Cache { 
+	//cache
+	private LinkedList<BTreeNode> cache1;
+	//cache size
+	private int cache1Size; 
 	
-	private int l1maxSize;
-	private int l2maxSize;	
-	public boolean l2enabled;
-	public int l1HitCount;
-	public int l2HitCount;
-	public int l1RefCount;
-	public int l2RefCount;	
-	private LinkedList<E> l1;
-	private LinkedList<E> l2;
-	
-	public Cache(int l1size, int l2size, boolean l2enable) {
-		l1maxSize = l1size;
-		l2maxSize = l2size;
-		l2enabled = l2enable;
-		l1HitCount = 0;
-		l2HitCount = 0;
-		l1RefCount = 0;
-		l2RefCount = 0;
-		l1 = new LinkedList<E>();
-		if(l2enabled) l2 = new LinkedList<E>();
-	}
+	/**
+	 * Constructor for one level cache.
+	 * 
+	 * @param cache1Size Size for 1st-level cache
+	 */
+	public Cache(int cache1Size) {
+		//initialize class variables
+		cache1 = new LinkedList<BTreeNode>();
+		this.cache1Size = cache1Size;
 
-	public void addObject(E object) {
-		l1.addFirst(object);
-		if(l1.size() >= l1maxSize) l1.removeLast();
-		if(l2enabled) {
-			l2.addFirst(object);
-			if(l2.size() >= l2maxSize) l2.removeLast();
+	}//end of Cache
+		
+	/**
+	 * Adds an object to the cache if it does not
+	 * already exist. Moves object to front of the
+	 * cache if it does exist. Need to check if
+	 * cache is full before running. 
+	 * 
+	 * @param toAdd object to be added to the cache
+	 */
+	public void addObject(BTreeNode toAdd) {
+		
+		//add in object if it is not already in cache
+		BTreeNode moveToFront = getObject(toAdd);
+		if (moveToFront == null){
+			cache1.addFirst(toAdd);
 		}
-	}
-
-	public E getObject(E object) {
-		removeObject(object);
-		addObject(object);
-		return (E)l1.get(0);
-	}
-
-	public void removeObject(E object) {
-		l1RefCount++;
-		if(l1.indexOf(object) != -1) {
-			l1HitCount++;
-			l1.remove(l1.indexOf(object));
-			if(l2enabled) l2.remove(l2.indexOf(object));
-		}else if(l2enabled) {
-			l2RefCount++;
-			if(l2.indexOf(object) != -1) {
-				l2HitCount++;
-				l2.remove(l2.indexOf(object));
-			}
+		else { //already in cache move to front
+			cache1.addFirst(toAdd);
 		}
+		
+	}//end of addObject
+	
+	/**
+	 * Looks for BTreeNode in cache and returns it if found. 
+	 * 
+	 * @param toGet object to check cache for
+	 * @return  BTreeNode if found, null if not found
+	 */
+	public BTreeNode getObject(BTreeNode toGet) {
+		//look for object in cache and return it if found
+		for (int i = 0; i < cache1.size(); i++)
+		 if (cache1.get(i).equals(toGet)) {
+			 BTreeNode found = cache1.get(i);
+			 cache1.remove(i);
+			 return found;
+		 }
+		//not found
+		return null;
+	}//end of getObject
+	
+	
+	/**
+	 * Looks for BTreeNode by file offset in cache and returns it if found. 
+	 * 
+	 * @param toGet object to check cache for
+	 * @return  BTreeNode if found, null if not found
+	 */
+	public BTreeNode getObject(long fileOffset) {
+		//look for object in cache and return it if found
+		for (int i = 0; i < cache1.size(); i++)
+		 if (cache1.get(i).filePos == fileOffset) {
+			 BTreeNode found = cache1.get(i);
+			 cache1.remove(i);
+			 return found;
+		 }
+		//not found
+		return null;
+	}//end of getObject
+	
+	/**
+	 * Returns last node in the cache.
+	 * 
+	 * @return last node in cache
+	 */
+	public BTreeNode getLast () {
+		return cache1.removeLast();
+	}
+
+
+	/**
+	 * Checks if cache is full
+	 * 
+	 * @return true if full false otherwise
+	 */
+	public boolean isFull() {
+		return cache1.size() == cache1Size;
 	}
 	
-	public void clearCache(E object){
-		l1.clear();
-		if(l2enabled) l2.clear();
+	/**
+	 * Gets cache size
+	 * 
+	 * @return cacheSize
+	 */
+	public int cacheSize() {
+		return cache1.size();
 	}
-	
-}
+}//end of class Cache
