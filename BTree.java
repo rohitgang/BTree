@@ -137,6 +137,11 @@ public class BTree{
 					}
 					else {
 						retNode = diskRead(x.children[i]);
+						if (cache.isFull()) {
+							BTreeNode writeToDisk = cache.getLast();
+							diskWrite(writeToDisk);
+						}
+						cache.addObject(retNode);
 					}
 				}
 				else {
