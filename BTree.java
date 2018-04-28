@@ -88,7 +88,9 @@ public class BTree{
 	}
 	
 	public void insertNonFull(BTreeNode x, long key) {
-		writeCache();
+		if (cache != null) {
+			writeCache();
+		}
 		int i = x.n - 1;
 		if(x.isLeaf) {
 			while( i >= 0 && key < x.keys[i].key ) {
@@ -154,7 +156,9 @@ public class BTree{
 	}
 	
 	public void splitChild(BTreeNode x, int i, BTreeNode y) {
-		writeCache();
+		if (cache != null) {
+			writeCache();
+		}
 		//x is the parent to y
 		//y is the node being split 
 		//z is the new node which ~half of y's keys/children will go to
