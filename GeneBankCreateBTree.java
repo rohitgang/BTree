@@ -29,10 +29,10 @@ public class GeneBankCreateBTree{
 			
 			if (cacheFlag == 1) {
 				Cache cache = new Cache(cacheSize);
-				bt = new BTree(degreeArg/2, sequenceSize, gbkFilename, cache);
+				bt = new BTree(degreeArg, sequenceSize, gbkFilename, cache);
 			}
 			else{
-				bt = new BTree(degreeArg/2, sequenceSize, gbkFilename, null);
+				bt = new BTree(degreeArg, sequenceSize, gbkFilename, null);
 			}
 			
 			StringBuilder fullSequence = new StringBuilder("Start");
@@ -65,7 +65,7 @@ public class GeneBankCreateBTree{
 			
 			System.out.println("The B-Tree was created successfully!");
 			System.out.println("The following files were created.");
-			System.out.println("Metadata file: " + gbkFilename + ".btree.metadata." + sequenceSize  + "." + degreeArg);
+			System.out.println("Metadata file: " + gbkFilename + ".btree.metadata." + sequenceSize  + "." + degreeArg );
 			System.out.println("B-Tree binary file: "  + gbkFilename + ".btree.data." + sequenceSize  + "." + degreeArg);
 
 			if (debugArg == 1) {

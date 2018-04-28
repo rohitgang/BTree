@@ -3,8 +3,8 @@ package BTree;
 import java.util.LinkedList;
 
 /**
- * Implements a 1 or 2 level cache based on parameters passed into constructor. 
- * The cache stores generic objects in a linked list. Each node represents one
+ * Implements a 1 level cache. 
+ * The cache stores btree nodes in a linked list. Each node represents one
  * open space in the cache. 
  *  
  * @author Ben Peterson
@@ -13,7 +13,7 @@ public class Cache {
 	//cache
 	private LinkedList<BTreeNode> cache1;
 	//cache size
-	private int cache1Size; 
+	private final int CACHE_MAX_SIZE; 
 	
 	/**
 	 * Constructor for one level cache.
@@ -23,7 +23,7 @@ public class Cache {
 	public Cache(int cache1Size) {
 		//initialize class variables
 		cache1 = new LinkedList<BTreeNode>();
-		this.cache1Size = cache1Size;
+		this.CACHE_MAX_SIZE = cache1Size;
 
 	}//end of Cache
 		
@@ -43,7 +43,7 @@ public class Cache {
 			cache1.addFirst(toAdd);
 		}
 		else { //already in cache move to front
-			cache1.addFirst(toAdd);
+			cache1.addFirst(moveToFront);
 		}
 		
 	}//end of addObject
@@ -56,12 +56,12 @@ public class Cache {
 	 */
 	public BTreeNode getObject(BTreeNode toGet) {
 		//look for object in cache and return it if found
-		for (int i = 0; i < cache1.size(); i++)
-		 if (cache1.get(i).equals(toGet)) {
-			 BTreeNode found = cache1.get(i);
-			 cache1.remove(i);
-			 return found;
-		 }
+		for (int i = 0; i < cache1.size(); i++) {
+			if (cache1.get(i).equals(toGet)) {
+
+				return cache1.remove(i);
+			}
+		}
 		//not found
 		return null;
 	}//end of getObject
@@ -75,12 +75,12 @@ public class Cache {
 	 */
 	public BTreeNode getObject(long fileOffset) {
 		//look for object in cache and return it if found
-		for (int i = 0; i < cache1.size(); i++)
-		 if (cache1.get(i).filePos == fileOffset) {
-			 BTreeNode found = cache1.get(i);
-			 cache1.remove(i);
-			 return found;
-		 }
+		for (int i = 0; i < cache1.size(); i++) {
+			if (cache1.get(i).filePos == fileOffset) {
+
+				return cache1.remove(i);
+			}
+		}
 		//not found
 		return null;
 	}//end of getObject
@@ -101,7 +101,7 @@ public class Cache {
 	 * @return true if full false otherwise
 	 */
 	public boolean isFull() {
-		return cache1.size() == cache1Size;
+		return cache1.size() == CACHE_MAX_SIZE;
 	}
 	
 	/**
