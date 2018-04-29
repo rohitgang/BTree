@@ -57,16 +57,7 @@ public class BTree{
 			for(int i=0; i<duplicate.keys.length; i++) {
 				if(duplicate.keys[i].key == key) {
 					duplicate.keys[i].freq++;
-					if (cache != null) {
-						if (cache.isFull()) {
-							BTreeNode writeToDisk = cache.getLast();
-							diskWrite(writeToDisk);
-						}
-						cache.addObject(duplicate);
-					}
-					else {
-						diskWrite(duplicate);
-					}
+					nodeWrite(duplicate);
 					return;
 				}
 			}
@@ -88,9 +79,6 @@ public class BTree{
 	}
 	
 	public void insertNonFull(BTreeNode x, long key) {
-		if (cache != null) {
-			writeCache();
-		}
 		int i = x.n - 1;
 		if(x.isLeaf) {
 			while( i >= 0 && key < x.keys[i].key ) {
@@ -99,7 +87,7 @@ public class BTree{
 			}
 			x.keys[i+1] = new TreeObject(key, 1);
 			x.n++;
-			diskWrite(x);	
+			nodeWrite(x);	
 		}else {
 			while( i >= 0 && key < x.keys[i].key) {
 				i--;
@@ -132,33 +120,14 @@ public class BTree{
 			return null;
 		}else {
 			if(x.children[i]!=-1) {
-				if (cache != null) {
-					BTreeNode find = cache.getObject(x.children[i]);
-					if (find != null) {
-						retNode = find;
-					}
-					else {
-						retNode = diskRead(x.children[i]);
-						if (cache.isFull()) {
-							BTreeNode writeToDisk = cache.getLast();
-							diskWrite(writeToDisk);
-						}
-						cache.addObject(retNode);
-					}
-				}
-				else {
 					retNode = diskRead(x.children[i]);
 				}
 		
-			}
 		}
 		return search(retNode,key);
 	}
 	
 	public void splitChild(BTreeNode x, int i, BTreeNode y) {
-		if (cache != null) {
-			writeCache();
-		}
 		//x is the parent to y
 		//y is the node being split 
 		//z is the new node which ~half of y's keys/children will go to
@@ -190,9 +159,9 @@ public class BTree{
 		x.keys[i] = new TreeObject(y.keys[t-1].key, y.keys[t-1].freq);
 		y.keys[t-1] = new TreeObject();
 		x.n = x.n + 1;
-		diskWrite(z);		
-		diskWrite(y);		
-		diskWrite(x);
+		nodeWrite(z);		
+		nodeWrite(y);		
+		nodeWrite(x);
 	}
 	
 	public long sequenceToLong(String s) {
@@ -229,6 +198,21 @@ public class BTree{
 		return retString;
 	}
 	
+	
+	public void nodeWrite(BTreeNode node) {
+		if (cache != null) {
+			BTreeNode checkNode = cache.addObject(node);
+			if (checkNode != null) {
+				diskWrite(checkNode);
+			}
+		}
+		else {
+			diskWrite(node);
+		}
+		
+	}
+	
+	
 	public void diskWrite(BTreeNode node) {
 		try {
 			btreeRAF = new RandomAccessFile(BtreeFile, "rw");
@@ -250,6 +234,16 @@ public class BTree{
 	}
 	
 	public BTreeNode diskRead(long offset) {
+		
+		BTreeNode checkCache = null;
+		if (cache != null) {
+			checkCache = cache.getObject(offset);
+		}
+		if (checkCache != null)
+		{
+			return checkCache;
+		}
+		
 		BTreeNode node = new BTreeNode(t,offset);
 		try {
 			btreeRAF = new RandomAccessFile(BtreeFile, "r");

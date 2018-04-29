@@ -4,8 +4,8 @@ import java.util.LinkedList;
 
 /**
  * Implements a 1 level cache. 
- * The cache stores btree nodes in a linked list. Each node represents one
- * open space in the cache. 
+ * The cache stores btree nodes in a linked list. 
+ * Each node represents one open space in the cache. 
  *  
  * @author Ben Peterson
  */
@@ -35,36 +35,14 @@ public class Cache {
 	 * 
 	 * @param toAdd object to be added to the cache
 	 */
-	public void addObject(BTreeNode toAdd) {
-		
-		//add in object if it is not already in cache
-		BTreeNode moveToFront = getObject(toAdd);
-		if (moveToFront == null){
-			cache1.addFirst(toAdd);
+	public BTreeNode addObject(BTreeNode toAdd) {
+		BTreeNode returnNode = null;
+		if (isFull()) {
+			 returnNode = cache1.removeLast();
 		}
-		else { //already in cache move to front
-			cache1.addFirst(moveToFront);
-		}
-		
+		cache1.addFirst(toAdd);
+		return returnNode;
 	}//end of addObject
-	
-	/**
-	 * Looks for BTreeNode in cache and returns it if found. 
-	 * 
-	 * @param toGet object to check cache for
-	 * @return  BTreeNode if found, null if not found
-	 */
-	public BTreeNode getObject(BTreeNode toGet) {
-		//look for object in cache and return it if found
-		for (int i = 0; i < cache1.size(); i++) {
-			if (cache1.get(i).equals(toGet)) {
-
-				return cache1.remove(i);
-			}
-		}
-		//not found
-		return null;
-	}//end of getObject
 	
 	
 	/**
@@ -77,8 +55,9 @@ public class Cache {
 		//look for object in cache and return it if found
 		for (int i = 0; i < cache1.size(); i++) {
 			if (cache1.get(i).filePos == fileOffset) {
-
-				return cache1.remove(i);
+				BTreeNode toReturn = cache1.remove(i);
+				cache1.addFirst(toReturn);
+				return toReturn;
 			}
 		}
 		//not found
