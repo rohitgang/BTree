@@ -49,6 +49,17 @@ public class BTree{
 		
 		this.cache = cache;
 	}
+		
+	public BTree(File BtreeFile, File metadata) throws IOException {
+		btreeRAF = new RandomAccessFile(metadata, "r");
+		this.t = btreeRAF.readInt(); //read in degree in terms of t
+		this.seqLength = btreeRAF.readInt(); //sequence length (k) 
+		btreeRAF.close();
+		
+		btreeRAF = new RandomAccessFile(BtreeFile, "r");
+		root = diskRead(0);		
+		btreeRAF.close();
+	}
 	
 	public void insert(long key)  {
 		//check if key is already inserted
