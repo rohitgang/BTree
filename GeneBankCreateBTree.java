@@ -98,11 +98,11 @@ public class GeneBankCreateBTree{
 			if(cacheFlag != 0 && cacheFlag != 1) printUsage();
 			
 			degreeArg = Integer.parseInt(args[1]);
-			if(degreeArg < 0 || degreeArg % 2 != 0) printUsage();
+			if(degreeArg < 2) printUsage();
 			//if the degree arg is 0 configure degree so that each node fits within a memory block of size 4096
 			//each node has (2*t-1)*(8+4) + (2*t)*8 + 4 + 4 + 8 bytes
 			//(2*t-t)*(8+4) + (2*t)*8 + 4 + 4 + 8 = 4096 => t = 145 => degree = 2*145
-			if(degreeArg == 0) degreeArg = 145*2;
+			if(degreeArg == 0) degreeArg = 145;
 			
 			gbkFilename = args[2];
 			
@@ -171,7 +171,7 @@ public class GeneBankCreateBTree{
 		System.err.println("<cache>: 0 for no cache or 1 to use a cache");
 		System.err.println("<degree>: Degree of Btree, 0 will default to a block size of 4096");
 		System.err.println("<gbk file>: file with sequences saved to it");
-		System.err.print("<sequence length>: length of subsequences allowed values are 1-31");
+		System.err.println("<sequence length>: length of subsequences allowed values are 1-31");
 		System.err.println("<Cache Size>: If cache is enabled this will be the size desired by the user");
 		System.err.println("[<Debug Level>]: 0 for helpful diagnostics, 1 to dump information to a file ");
 		System.exit(1);
