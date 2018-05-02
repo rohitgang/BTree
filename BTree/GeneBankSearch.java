@@ -49,6 +49,12 @@ public class GeneBankSearch {
 				
 				BTreeNode searchKey = bt.search(bt.root, searchedKey);
 				
+				for(int i = 0; i < searchKey.keys.length; i++){
+					if(searchKey.keys[i].equals(searchedKey)){
+//						System.out.println(searchKey.keys.)
+					}
+				}
+				
 				if(searchKey != null){
 //					System.out.println("Searched key: " + searchKey. + "Searched Seqeunce ");
 				}
