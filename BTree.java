@@ -56,14 +56,9 @@ public class BTree{
 		if(duplicate != null) {
 			for(int i=0; i<duplicate.keys.length; i++) {
 				if(duplicate.keys[i].key == key) {
-					if(cache != null) {
-						cacheWriteKeyIncrement(duplicate, key);
-						return;
-					}else {
 						duplicate.keys[i].freq++;
 						nodeWrite(duplicate);
 						return;
-					}
 				}
 			}
 		}
@@ -83,19 +78,6 @@ public class BTree{
 		}
 	}
 		
-		public void cacheWriteKeyIncrement(BTreeNode n, long key) {
-			BTreeNode cacheNode = cache.getObject(n.filePos);
-			if(cacheNode != null) {
-				for(int j=0; j<cacheNode.keys.length; j++) {
-					if(cacheNode.keys[j].key == key) {
-						cacheNode.keys[j].freq++;
-					}
-				}
-			}else {
-				diskWrite(n);
-			}
-		}
-
 	
 	public void insertNonFull(BTreeNode x, long key) {
 		int i = x.n - 1;

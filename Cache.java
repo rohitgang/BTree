@@ -30,8 +30,7 @@ public class Cache {
 	/**
 	 * Adds an object to the cache if it does not
 	 * already exist. Moves object to front of the
-	 * cache if it does exist. Need to check if
-	 * cache is full before running. 
+	 * cache if it does exist.
 	 * 
 	 * @param toAdd object to be added to the cache
 	 */
@@ -40,10 +39,33 @@ public class Cache {
 		if (isFull()) {
 			 returnNode = cache1.removeLast();
 		}
-		cache1.addFirst(toAdd);
+		BTreeNode moveToFront = getObject(toAdd);
+		if (moveToFront == null){
+			cache1.addFirst(toAdd);
+		}
+		else { //already in cache move to front
+			cache1.addFirst(moveToFront);
+		}
 		return returnNode;
 	}//end of addObject
 	
+	/**
+	 * Looks for BTreeNode in cache and returns it if found. 
+	 * 
+	 * @param toGet object to check cache for
+	 * @return  BTreeNode if found, null if not found
+	 */
+	public BTreeNode getObject(BTreeNode toGet) {
+		//look for object in cache and return it if found
+		for (int i = 0; i < cache1.size(); i++) {
+			if (cache1.get(i).equals(toGet)) {
+
+				return cache1.remove(i);
+			}
+		}
+		//not found
+		return null;
+	}//end of getObject
 	
 	/**
 	 * Looks for BTreeNode by file offset in cache and returns it if found. 
