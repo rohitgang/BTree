@@ -6,13 +6,6 @@ import java.io.RandomAccessFile;
 import java.security.InvalidParameterException;
 
 public class BTree{
-
-	/**
-	 *  a B-tree is a self-balancing tree data structure that keeps data sorted and allows searches, 
-	 *  sequential access, insertions, and deletions in logarithmic time. In this case there is no
-	 *  delete method because we are only interested in building and searching the tree.
-	 *  @author Ben McAvoy, Ben Peterson
-	 */
 	
 	private int t;
 	private int seqLength;
@@ -28,8 +21,8 @@ public class BTree{
 		File metadata = new File(gbk + ".btree.metadata." + k + "." + t);
 		
 		btreeRAF = new RandomAccessFile(metadata, "rw");
-		btreeRAF.writeInt(t); //tree degree in terms of t
-		btreeRAF.writeInt(k); //length of sequences stored in the tree
+		btreeRAF.writeInt(t); //write tree degree to metadata file
+		btreeRAF.writeInt(k); //write sequence length to metadata file
 		btreeRAF.close();
 
 		root = new BTreeNode(t,0);
@@ -39,7 +32,6 @@ public class BTree{
 	
 	public BTree(File BtreeFile, File metadata, Cache cache) throws IOException {	
 		btreeRAF = new RandomAccessFile(metadata, "r");
-		btreeRAF.seek(0L);
 		this.t = btreeRAF.readInt(); //read in degree in terms of t
 		this.seqLength = btreeRAF.readInt(); //sequence length (k) 
 		btreeRAF.close();
@@ -58,9 +50,9 @@ public class BTree{
 		if(duplicate != null) {
 			for(int i=0; i<duplicate.keys.length; i++) {
 				if(duplicate.keys[i].key == key) {
-						duplicate.keys[i].freq++;
-						nodeWrite(duplicate);
-						return;
+					duplicate.keys[i].freq++;
+					nodeWrite(duplicate);
+					return;
 				}
 			}
 		}
@@ -124,12 +116,10 @@ public class BTree{
 		}
 		if(x.isLeaf) {
 			return null;
-		}else {
-			if(x.children[i]!=-1) {
-					retNode = diskRead(x.children[i]);
-				}
-		
 		}
+		if(x.children[i]!=-1) {
+			retNode = diskRead(x.children[i]);
+		}				
 		return search(retNode,key);
 	}
 	
@@ -206,6 +196,9 @@ public class BTree{
 	
 	public void nodeWrite(BTreeNode node) {
 		if (cache != null) {
+			//add node to the cache, if the cache is full addObject will return the
+			//last element in the cache. When the last element is returned, write it to disk
+			//so that its data is updated appropriately
 			BTreeNode checkNode = cache.addObject(node);
 			if (checkNode != null) {
 				diskWrite(checkNode);
@@ -238,21 +231,22 @@ public class BTree{
 		}
 	}
 	
-	public BTreeNode diskRead(long offset) {
-		
+	public BTreeNode diskRead(long filePos) {		
+		//search the cache for the node with the given filePos
+		//if it is found in the cache, return it instead of reading from disk
 		BTreeNode checkCache = null;
 		if (cache != null) {
-			checkCache = cache.getObject(offset);
+			checkCache = cache.getObject(filePos);
 		}
 		if (checkCache != null)
 		{
 			return checkCache;
 		}
 		
-		BTreeNode node = new BTreeNode(t,offset);
+		BTreeNode node = new BTreeNode(t,filePos);
 		try {
 			btreeRAF = new RandomAccessFile(BtreeFile, "r");
-			btreeRAF.seek(offset);
+			btreeRAF.seek(filePos);
 			for (int i = 0; i < node.keys.length; i++) {
 				node.keys[i].key = btreeRAF.readLong();
 				node.keys[i].freq = btreeRAF.readInt();
@@ -271,6 +265,8 @@ public class BTree{
 	}
 	
 	public void print(BTreeNode root_node, boolean debug) {	
+		//in-order traversal of the btree nodes
+		//print all keys of the node on each traverse step
 		int i;
 		for(i=0; i < 2*t-1; i++) {
 			if (!root_node.isLeaf) {

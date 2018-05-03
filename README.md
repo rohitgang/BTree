@@ -5,7 +5,7 @@ TODO: Report on how using cache sizes 100 and 500 affects the performance of the
 * BTree
 * CS321
 * 5/5/2018
-* Ben Mcavoy, Nick Figura, Ben Peterson 
+* Ben McAvoy, Nick Figura, Ben Peterson 
 **************** 
 
 OVERVIEW:
@@ -68,7 +68,7 @@ PROGRAM DESIGN:
 
 
 DESCRIPTION OF THE FILE LAYOUT ON DISK:
-The BTree is written to the hard disk as a binary file which contains a series of nodes. Each node is inserted into the file in the order that it was created. This means that the oldest node will be the first one on file and the newest node will be the last. 
+The BTree is written to the hard disk as a binary file which contains a series of nodes. Each node is inserted into the file in the order that it was created with one exception. The root node is always at file position 0. This is makes it convenient to locate the root node on the .btree.data file created by GeneBankCreateBTree. 
 
 Each node is written as a series of the fields which it contains. For each field which is an array, its elements will be written sequentially as well. Here is an example with a simple node:
 
@@ -79,19 +79,21 @@ n = 3 (int; 4 bytes)
 keys[] = [{key:1, freq:1}, {key:2, freq:1}, {key:3, freq:1}] (4*long + 4*int; 48 bytes)
 children[] = [ 1, 2, 3, 4] (4*long; 32 bytes)
 
-Will be written as:
-[0x 00 00 00 00 00 00 00 00]
-[0x 00 00 00 00 00]
-[0x 00 00 00 00 03]
-[0x (00 00 00 00 00 00 00 01) (00 00 00 01)
- 0x (00 00 00 00 00 00 00 10) (00 00 00 01)
- 0x (00 00 00 00 00 00 00 11) (00 00 00 01)]
-[0x (00 00 00 00 00 00 00 01)
- 0x (00 00 00 00 00 00 00 10)
- 0x (00 00 00 00 00 00 00 11)
- 0x (00 00 00 00 00 00 01 00)]
+Will be written as (in hexadecimal):
+(00 00 00 00 00 00 00 00)
+(00 00 00 00 00)
+(00 00 00 00 03)
+[(00 00 00 00 00 00 00 01) (00 00 00 01)
+ (00 00 00 00 00 00 00 10) (00 00 00 01)
+ (00 00 00 00 00 00 00 11) (00 00 00 01)]
+[(00 00 00 00 00 00 00 01)
+ (00 00 00 00 00 00 00 10)
+ (00 00 00 00 00 00 00 11)
+ (00 00 00 00 00 00 01 00)]
  
-Next would follow another node with the same number of bytes but different data.
+ ...
+
+Next would follow another node with the same number of bytes but with a file position at the byte following the last byte of this node (and different key/children data appropriate for a BTree).
 
 
 

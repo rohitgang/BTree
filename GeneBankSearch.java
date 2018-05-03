@@ -7,50 +7,36 @@ import java.net.URISyntaxException;
 import java.util.Scanner;
 
 public class GeneBankSearch {
+	
 	static int cacheCapacity, metaSeqLength, debugLevel, cacheSize;
 	static String btreeFileName, queryFileName, metadataFileName;
 	static long searchedKey;
 	static Cache cache;
 	static BTree bt;
 
-	
 	public static void main(String args[]) throws URISyntaxException {
 
 		parseArgs(args);
 		
 		try {		
-			File bf = new File(btreeFileName);
-			File mf = new File(metadataFileName);
-			BTree bt = null;
-			if(args[0].equals("1")){
-				bt = new BTree(bf, mf, cache);
-			}else if(args[0].equals("0")){
-				bt = new BTree(bf, mf, null);
-			}
+			BTree bt = new BTree(new File(btreeFileName), new File(metadataFileName), cache);
 
 			System.out.println("Btree File:" + btreeFileName);
 			System.out.println("Metadata File:" + metadataFileName);
 			System.out.println("Query File:" + queryFileName);
 
 			Scanner queryScanner = new Scanner(new File(queryFileName));
-
-			String currLine = "";
+			String curLine = "";
 			do{				
-				currLine = queryScanner.nextLine();
-				long k = bt.sequenceToLong(currLine);
+				curLine = queryScanner.nextLine();
+				long k = bt.sequenceToLong(curLine);
 				BTreeNode searchKey = bt.search(bt.root, k);
 				if(searchKey == null) return;
 				for(int i = 0; i < searchKey.keys.length; i++){
-					if(searchKey.keys[i].key == k){
-						System.out.print(bt.longToSequence(k, metaSeqLength));
-						System.out.print(' ');
-						System.out.print(searchKey.keys[i].freq);
-						System.out.println();
-					}
+					if(searchKey.keys[i].key == k)
+						System.out.println(bt.longToSequence(k, metaSeqLength) + " " + searchKey.keys[i].freq);
 				}				
-			}while(queryScanner.hasNextLine());
-			
-			queryScanner.close();
+			}while(queryScanner.hasNextLine());			
 
 		}catch(FileNotFoundException e){
 			e.printStackTrace();
@@ -70,7 +56,9 @@ public class GeneBankSearch {
 		if(args[0].equals("1")){
 			cacheSize = Integer.parseInt(args[3]);
 			cache = new Cache(cacheCapacity);
-		}		
+		}else {
+			cache = null;
+		}
 
 		btreeFileName = args[1];
 		queryFileName = args[2];

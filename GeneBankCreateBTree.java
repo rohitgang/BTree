@@ -6,17 +6,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 
-/**
- * 
- * TODO javadoc goes here!
- *
- */
-
 public class GeneBankCreateBTree{
 
 	static int cacheFlag, degreeArg, sequenceSize, cacheSize, debugArg;
 	static String gbkFilename;
-
+	static Cache cache;
 	
 	public static void main(String args[]){
 		
@@ -27,8 +21,7 @@ public class GeneBankCreateBTree{
 			File gbkFile = new File(gbkFilename);
 			BufferedReader gbkInput = new BufferedReader(new FileReader(gbkFile));
 			
-			if (cacheFlag == 1) {
-				Cache cache = new Cache(cacheSize);
+			if (cacheFlag == 1) {				
 				bt = new BTree(degreeArg, sequenceSize, gbkFilename, cache);
 			}
 			else{
@@ -40,8 +33,6 @@ public class GeneBankCreateBTree{
 			while (fullSequence != null) {
 				fullSequence = parseGbkFile(gbkInput);
 				if (fullSequence != null) {
-
-					//add subsequences to the tree
 					int seqLength = sequenceSize;
 					int endOfSubseq = fullSequence.length() - seqLength;
 					String subSequence;
@@ -59,9 +50,10 @@ public class GeneBankCreateBTree{
 				}
 			}
 			gbkInput.close();
-			if (cacheFlag == 1) {
-				bt.writeCache();
-			}
+			
+			//the cache needs to be written at the end so that any 
+			//updates to nodes and their keys/children are written to disk
+			if (cacheFlag == 1) bt.writeCache();
 			
 			System.out.println("The B-Tree was created successfully!");
 			System.out.println("The following files were created.");
@@ -87,30 +79,33 @@ public class GeneBankCreateBTree{
 		}
 	}
 	
-	//GeneBankCreateBTree <degree> <gbk file> <sequence length> [<debug level>]
-	//TODO GeneBankCreateBTree <cache 0/1> <degree> <gbk file> <sequence length> <cache size> [<debug level>]
+	//GeneBankCreateBTree <cache 0/1> <degree> <gbk file> <sequence length> <cache size> [<debug level>]
 	private static void parseArgs(String args[]) {
 		if(args.length < 5 || args.length > 6) printUsage();
 
 		try{			
 			cacheFlag = Integer.parseInt(args[0]);
-			cacheSize = Integer.parseInt(args[4]);
-			if(cacheFlag != 0 && cacheFlag != 1) printUsage();
+			if(cacheFlag == 1) 
+				cache = new Cache(Integer.parseInt(args[4]));
+			else if(cacheFlag == 0) 
+				cache = null;
+			else printUsage();			
 			
 			degreeArg = Integer.parseInt(args[1]);
-			if(degreeArg < 2) printUsage();
-			//if the degree arg is 0 configure degree so that each node fits within a memory block of size 4096
+			//if the degree arg is 0 configure the degree so that each node fits within a memory block of size 4096
 			//each node has (2*t-1)*(8+4) + (2*t)*8 + 4 + 4 + 8 bytes
 			//(2*t-t)*(8+4) + (2*t)*8 + 4 + 4 + 8 = 4096 => t = 145 => degree = 145
 			if(degreeArg == 0) degreeArg = 145;
+			else if(degreeArg < 2) printUsage();			
 			
 			gbkFilename = args[2];
 			
 			sequenceSize = Integer.parseInt(args[3]);
-			if(sequenceSize < 1 || sequenceSize > 31) printUsage();
+			if(sequenceSize < 1 || sequenceSize > 31) 
+				printUsage();
 			
-			if (args.length > 3) debugArg = Integer.parseInt(args[5]);
-			
+			if (args.length > 3) 
+				debugArg = Integer.parseInt(args[5]);
 		}catch(NumberFormatException e){
 			printUsage();
 		}
@@ -129,9 +124,7 @@ public class GeneBankCreateBTree{
 			}while(dnaSequence != null && !dnaSequence.startsWith("ORIGIN"));
 			
 			if (dnaSequence == null)
-			{
 				return fullSequence;
-			}
 			
 			char token = 0;
 			fullSequence = new StringBuilder();
