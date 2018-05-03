@@ -2,8 +2,15 @@ package BTree;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -16,55 +23,50 @@ public class GeneBankSearch {
 	static BTree bt;
 
 	//GeneBankSearch<0/1(no/with Cache> <btree file> <query file> <Cache Size> [<debug level>]
-	public static void main(String args[]) {
+	public static void main(String args[]) throws URISyntaxException {
 
 		//a possible solution for getting the degree and sequence could be parsing it from the .gbk filename
 		parseArgs(args);
-		File btreeFile = new File(btreeFileName);
-		File metadataFile = new File(metadataFileName);
-
-		try {
+		
+		try {		
+			File bf = new File(btreeFileName);
+			File mf = new File(metadataFileName);
+			BTree bt = null;
 			if(args[0].equals("1")){
-				BTree bt = new BTree(btreeFile, metadataFile, cache);
+				bt = new BTree(bf, mf, cache);
 			}else if(args[0].equals("0")){
-				BTree bt = new BTree(btreeFile, metadataFile);
+				bt = new BTree(bf, mf, null);
 			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
-		System.out.println("Btree File:" + btreeFileName);
-		System.out.println("Metadata File:" + metadataFileName);
-		System.out.println("Query File:" + queryFileName);
+			System.out.println("Btree File:" + btreeFileName);
+			System.out.println("Metadata File:" + metadataFileName);
+			System.out.println("Query File:" + queryFileName);
 
-
-		try{
 			Scanner queryScanner = new Scanner(new File(queryFileName));
 
-			while (queryScanner.hasNextLine()){
-				String currLine = queryScanner.nextLine();
-
-				searchedKey = bt.sequenceToLong(currLine);
+			String currLine = "";
+			do{				
+				currLine = queryScanner.nextLine();
+				BTreeNode searchKey = bt.search(bt.root, bt.sequenceToLong(currLine));
+				System.out.println(searchKey);
 				
-				BTreeNode searchKey = bt.search(bt.root, searchedKey);
-				
+				if(searchKey == null) return;
 				for(int i = 0; i < searchKey.keys.length; i++){
-					if(searchKey.keys[i].equals(searchedKey)){
-//						System.out.println(searchKey.keys.)
+					if(searchKey.keys[i].key == searchedKey){
+						System.out.print(searchKey.keys[i].key);
+						System.out.print(' ');
+						System.out.print(searchKey.keys[i].freq);
+						System.out.println();
 					}
-				}
-				
-				if(searchKey != null){
-//					System.out.println("Searched key: " + searchKey. + "Searched Seqeunce ");
-				}
-				
-			}
+				}				
+			}while(queryScanner.hasNextLine());
 			
 			queryScanner.close();
 
-		}catch(Exception e){
-
+		}catch(FileNotFoundException e){
+			e.printStackTrace();
+		}catch (IOException e) {
+			e.printStackTrace();
 		}
 
 
@@ -76,9 +78,10 @@ public class GeneBankSearch {
 			printUsage();
 		}
 
-		if(!(args[0].equals("0") || args[1].equals("1"))){
-			printUsage();
-		}
+//		if(!args[0].equals("0")){
+//			System.out.println("this 1");
+//			printUsage();
+//		}
 
 		if(args[0].equals("1") && args.length >= 4){
 			cacheCapacity = Integer.parseInt(args[3]);

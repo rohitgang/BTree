@@ -66,3 +66,33 @@ This will
  
 PROGRAM DESIGN:
 
+
+DESCRIPTION OF THE FILE LAYOUT ON DISK:
+The BTree is written to the hard disk as a binary file which contains a series of nodes. Each node is inserted into the file in the order that it was created. This means that the oldest node will be the first one on file and the newest node will be the last. 
+
+Each node is written as a series of the fields which it contains. For each field which is an array, its elements will be written sequentially as well. Here is an example with a simple node:
+
+Node:
+filePos = 0 (long; 8 bytes) 
+isLeaf = false(boolean; 4 bytes)
+n = 3 (int; 4 bytes)
+keys[] = [{key:1, freq:1}, {key:2, freq:1}, {key:3, freq:1}] (4*long + 4*int; 48 bytes)
+children[] = [ 1, 2, 3, 4] (4*long; 32 bytes)
+
+Will be written as:
+[0x 00 00 00 00 00 00 00 00]
+[0x 00 00 00 00 00]
+[0x 00 00 00 00 03]
+[0x (00 00 00 00 00 00 00 01) (00 00 00 01)
+ 0x (00 00 00 00 00 00 00 10) (00 00 00 01)
+ 0x (00 00 00 00 00 00 00 11) (00 00 00 01)]
+[0x (00 00 00 00 00 00 00 01)
+ 0x (00 00 00 00 00 00 00 10)
+ 0x (00 00 00 00 00 00 00 11)
+ 0x (00 00 00 00 00 00 01 00)]
+ 
+Next would follow another node with the same number of bytes but different data.
+
+
+
+

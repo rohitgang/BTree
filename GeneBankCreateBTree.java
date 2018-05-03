@@ -101,7 +101,7 @@ public class GeneBankCreateBTree{
 			if(degreeArg < 2) printUsage();
 			//if the degree arg is 0 configure degree so that each node fits within a memory block of size 4096
 			//each node has (2*t-1)*(8+4) + (2*t)*8 + 4 + 4 + 8 bytes
-			//(2*t-t)*(8+4) + (2*t)*8 + 4 + 4 + 8 = 4096 => t = 145 => degree = 2*145
+			//(2*t-t)*(8+4) + (2*t)*8 + 4 + 4 + 8 = 4096 => t = 145 => degree = 145
 			if(degreeArg == 0) degreeArg = 145;
 			
 			gbkFilename = args[2];

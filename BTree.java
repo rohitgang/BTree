@@ -28,8 +28,8 @@ public class BTree{
 		File metadata = new File(gbk + ".btree.metadata." + k + "." + t);
 		
 		btreeRAF = new RandomAccessFile(metadata, "rw");
-		btreeRAF.write(t); //tree degree in terms of t
-		btreeRAF.write(k); //length of sequences stored in the tree
+		btreeRAF.writeInt(t); //tree degree in terms of t
+		btreeRAF.writeInt(k); //length of sequences stored in the tree
 		btreeRAF.close();
 
 		root = new BTreeNode(t,0);
@@ -37,28 +37,19 @@ public class BTree{
 		diskWrite(root);
 	}
 	
-	public BTree(File BtreeFile, File metadata, Cache cache) throws IOException {
+	public BTree(File BtreeFile, File metadata, Cache cache) throws IOException {	
 		btreeRAF = new RandomAccessFile(metadata, "r");
+		btreeRAF.seek(0L);
 		this.t = btreeRAF.readInt(); //read in degree in terms of t
 		this.seqLength = btreeRAF.readInt(); //sequence length (k) 
 		btreeRAF.close();
 		
+		this.BtreeFile = BtreeFile;
 		btreeRAF = new RandomAccessFile(BtreeFile, "r");
 		root = diskRead(0);		
 		btreeRAF.close();
 		
 		this.cache = cache;
-	}
-		
-	public BTree(File BtreeFile, File metadata) throws IOException {
-		btreeRAF = new RandomAccessFile(metadata, "r");
-		this.t = btreeRAF.readInt(); //read in degree in terms of t
-		this.seqLength = btreeRAF.readInt(); //sequence length (k) 
-		btreeRAF.close();
-		
-		btreeRAF = new RandomAccessFile(BtreeFile, "r");
-		root = diskRead(0);		
-		btreeRAF.close();
 	}
 	
 	public void insert(long key)  {
@@ -177,8 +168,7 @@ public class BTree{
 	}
 	
 	public long sequenceToLong(String s) {
-		if( s.length() > 31 ) 
-			throw new InvalidParameterException("stringToLong() string param must be 31 chars long !");
+		//if( s.length() > 31 ) throw new InvalidParameterException("stringToLong() string param must be 31 chars long !");
 		Long retVal = 0L;
 		for( int i=0; i<s.length(); i++ ) {
 			int cur = 0;
@@ -300,9 +290,7 @@ public class BTree{
 				BTreeNode n = diskRead(root_node.children[i]);
 				print(n, debug);
 			}
-		}
-		
-		
+		}		
 	}
 	
 	private long getFileLength() {
