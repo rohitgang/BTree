@@ -69,10 +69,13 @@ public class BTree{
 		if(r.n == 2*t-1) {
 			BTreeNode newNode = new BTreeNode(t, getFileLength());	
 			diskWrite(newNode);	
+			this.root.filePos = getFileLength();
+			diskWrite(root);
 			this.root = newNode;
 			newNode.isLeaf = false;
 			newNode.n = 0;
-			newNode.children[0] = r.filePos;					
+			newNode.children[0] = r.filePos;
+			newNode.filePos = 0;
 			splitChild(newNode,0,r);
 			insertNonFull(newNode,key);
 		}else {
@@ -168,7 +171,7 @@ public class BTree{
 	}
 	
 	public long sequenceToLong(String s) {
-		//if( s.length() > 31 ) throw new InvalidParameterException("stringToLong() string param must be 31 chars long !");
+		if( s.length() > 31 ) throw new InvalidParameterException("stringToLong() string param must be 31 chars long !");
 		Long retVal = 0L;
 		for( int i=0; i<s.length(); i++ ) {
 			int cur = 0;
